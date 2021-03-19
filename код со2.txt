@@ -1,0 +1,42 @@
+include <SoftwareSerial.h>
+SoftwareSerial co2Serial(7, 6); // define MH-Z19 RX TX
+unsigned long startTime = millis();
+ 
+void setup() {
+  Serial.begin(9600);
+  co2Serial.begin(9600);
+  pinMode(9, INPUT);
+}
+ 
+void loop() {
+  Serial.println("------------------------------");
+  Serial.print("Time from start: ");
+  Serial.print((millis() - startTime) / 1000);
+  Serial.println(" s");
+  int ppm_uart = readCO2UART();
+  Serial.println("ppm = ");
+  Serial.print(ppm_uart);
+  delay(5000);
+}
+
+int readCO2UART(){
+  byte cmd[9] = {0xFF,0x01,0x86,0x00,0x00,0x00,0x00,0x00,0x79};
+  byte response[9]; // for answer
+
+  Serial.println("Sending CO2 request...");
+  Serial.print(co2Serial.write(cmd, 9)); //request PPM CO2
+
+  // clear the buffer
+  memset(response, 0, 9);
+  int i = 0;
+  while (co2Serial.available() == 0) {
+//    Serial.print("Waiting for response ");
+//    Serial.print(i);
+//    Serial.println(" s");
+    delay(1000);
+//    i++;
+  }
+  int xppm;
+  co2Serial.read(xppm)
+  return(xppm);
+}
